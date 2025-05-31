@@ -102,7 +102,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(OutDir)$(TargetName)D64$(TargetExt)</OutputFile>
-      <ImportLibrary>$(OutDir)$(TargetName)D64.lib</ImportLibrary>
+      <ImportLibrary>..\Lib\$(TargetName)D64.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

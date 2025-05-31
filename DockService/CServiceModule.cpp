@@ -213,7 +213,7 @@ DWORD AutomateThread(LPVOID pParam)
 			}
 			
 			//Sleep(200);
-			Sleep(5000);
+			Sleep(500);
 			g_Logger.WriteLog(_T("MainThread Sleep..."));
 
 		} // Main loop
