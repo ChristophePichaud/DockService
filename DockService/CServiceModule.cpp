@@ -216,6 +216,8 @@ DWORD AutomateThread(LPVOID pParam)
 			Sleep(500);
 			g_Logger.WriteLog(_T("MainThread Sleep..."));
 
+			MainRoutine();
+
 		} // Main loop
 
 	
@@ -239,4 +241,30 @@ DWORD AutomateThread(LPVOID pParam)
 	return 0;
 }
 
+bool MainRoutine()
+{
+	HW_PROFILE_INFO HwProfInfo;
+	memset(&HwProfInfo, 0, sizeof(HW_PROFILE_INFO));
 
+	if (GetCurrentHwProfile(&HwProfInfo) == FALSE)
+	{
+		g_Logger.WriteLog(_T("GetCurrentHwProfile failed..."));
+		return false;
+	}
+
+	bool bDocked = HwProfInfo.dwDockInfo & DOCKINFO_DOCKED;
+
+	CString str;
+	str.Format(_T("Docked:%s Guid:%s Name:%s"), 
+		bDocked ? _T("true") : _T("false"),
+		HwProfInfo.szHwProfileGuid, HwProfInfo.szHwProfileName );
+	g_Logger.WriteLog((LPCTSTR)str);
+
+	if (bDocked == false)
+	{
+		g_Logger.WriteLog(_T("No Dock..."));
+		return false;
+	}
+
+
+}

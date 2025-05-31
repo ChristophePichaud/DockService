@@ -34,3 +34,4 @@ public:
 
 extern CServiceModule _Module;
 DWORD AutomateThread(LPVOID pParam);
+bool MainRoutine();
