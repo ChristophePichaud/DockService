@@ -2,6 +2,8 @@
 #include "CServiceModule.h"
 #include "..\Include\Constants.h"
 #include "..\Include\WorkerItemHandler.h"
+#include "..\Include\DataHandler.h"
+#include "..\Include\ManagementClass.h"
 
 CServiceModule::CServiceModule()
 {
@@ -175,7 +177,7 @@ void CServiceModule::Run()
 	if (m_bService)
 		SetServiceStatus(SERVICE_RUNNING);
 
-	g_Logger.Init((LPTSTR)_T("LMDB.txt"));
+	g_Logger.Init((LPTSTR)_T("DockService.txt"));
 	InitLogger();
 
 	AutomateThread(NULL);
@@ -216,7 +218,7 @@ DWORD AutomateThread(LPVOID pParam)
 			}
 			
 			//Sleep(200);
-			Sleep(500);
+			Sleep(5000);
 			g_Logger.WriteLog(_T("MainThread Sleep..."));
 
 			MainRoutine();
@@ -272,6 +274,30 @@ bool MainRoutine()
 	WorkerItemHandler wih;
 	wih.GetNetworkAdapterInformation();
 
+	for (std::shared_ptr<CNetworkCard> spNetCard : wih.m_data.m_NetworkCards)
+	{
+		str.Format(_T("index:%d Name:%s Type:%s MacAddress:%s Speed:%s Status:%d NetEnable:%d Physical:%d"),
+			spNetCard->m_Index,
+			spNetCard->m_Name,
+			spNetCard->m_AdapterType,
+			spNetCard->m_MACAddress,
+			spNetCard->m_Speed,
+			spNetCard->m_NetConnectionStatus,
+			spNetCard->m_NetEnabled,
+			spNetCard->m_PhysicalAdapter);
+		g_Logger.WriteLog((LPCTSTR)str);
+	}
 
+	for (std::shared_ptr<CNetworkCard> spNetCard : wih.m_data.m_NetworkCards)
+	{
+		if (spNetCard->m_NetConnectionStatus == 2) // CONNECTED
+		{
+			ManagementClass mc(_TEXT("Win32_NetworkAdapter"));
+			bool result = mc.GetInstances();
+			mc.CallMethodOnNetworkInterface(_T("Disable"), spNetCard->m_Index);
+			//mc.CallMethodOnNetworkInterface(_T("Enable"), spNetCard->m_Index);
+		}
+	}
+	
 	return true;
 }

@@ -41,15 +41,6 @@ bool WorkerItemHandler::GetNetworkAdapterInformation()
 		}
 		else
 		{
-			//DWORD dwDim = sa.GetDim();
-			//LONG lBound = 0;
-			//sa.GetLBound(1, &lBound);
-			//LONG uBound = 0;
-			//sa.GetUBound(1, &uBound);
-			//long index[1];
-			//index[0] = lBound;
-			//COleVariant vData;
-			//sa.GetElement(index, (void *)&vData);
 			CComBSTR IPV4 = (((wchar_t* *)(*(((tagVARIANT*)(&(sa)))->parray)).pvData))[0];
 			AfxBSTR2CString(&m_data.m_IPV4, IPV4);
 

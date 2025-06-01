@@ -134,17 +134,19 @@ bool ManagementClass::CallMethodOnNetworkInterface(const CString& methodName, in
 	IWbemClassObject* pInParamsDefinition = NULL;
 	hres = pClass->GetMethod(MethodName, 0, &pInParamsDefinition, NULL);
 
-	IWbemClassObject* pClassInstance = NULL;
-	hres = pInParamsDefinition->SpawnInstance(0, &pClassInstance);
+	//IWbemClassObject* pClassInstance = NULL;
+	//hres = pInParamsDefinition->SpawnInstance(0, &pClassInstance);
 
 	// Execute Method
 	IWbemClassObject* pOutParams = NULL;
+	IWbemCallResult* pResult = NULL;
 	CString arg;
 	arg.Format(_TEXT("Win32_NetworkAdapter.DeviceID=\"%d\""), index);
 	CComBSTR bstrArg = (LPTSTR)(LPCTSTR)arg;
-	hres = m_pSvc->ExecMethod(bstrArg, MethodName, 0,
-		NULL, NULL, &pOutParams, NULL);
+	hres = m_pSvc->ExecMethod(bstrArg, MethodName, 0, NULL, NULL, &pOutParams, &pResult);
 
+	CComBSTR r;
+	pResult->GetResultString(0, &r);
 	if (FAILED(hres))
 	{
 		return false;
