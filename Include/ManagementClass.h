@@ -1,7 +1,7 @@
 #pragma once
 #include "MySharedStuff.h"
 
-class ManagementClass
+class MYSHAREDSTUFF_API ManagementClass
 {
 public:
 	ManagementClass(const CString& adr);
@@ -14,7 +14,7 @@ public:
 	bool GetBoolProperty(CString propName);
 	int GetIntProperty(CString propName);
 	long GetLongProperty(CString propName);
-	bool GetSafeArrayProperty(CString propName, COleSafeArray & saReturned);
+	bool GetSafeArrayProperty(CString propName, CComVariant& saReturned);
 
 protected:
 	CString m_wmiAdr;
@@ -23,3 +23,5 @@ protected:
 	CComPtr<IEnumWbemClassObject> m_pEnumerator;
 	CComPtr<IWbemClassObject> m_pclsObj;
 };
+
+void MYSHAREDSTUFF_API AfxBSTR2CString(CString* pStr, _In_ BSTR bstr);

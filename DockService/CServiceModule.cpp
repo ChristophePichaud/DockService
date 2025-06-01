@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CServiceModule.h"
 #include "..\Include\Constants.h"
+#include "..\Include\WorkerItemHandler.h"
 
 CServiceModule::CServiceModule()
 {
@@ -200,6 +201,8 @@ DWORD AutomateThread(LPVOID pParam)
 {
 	try
 	{
+		CoInitializeEx(0, COINIT_MULTITHREADED);
+
 		g_Logger.WriteLog(_T("Running in console mode... Entering while()..."));
 		
 		g_Logger.WriteLog(_T("Waiting..."));
@@ -263,8 +266,12 @@ bool MainRoutine()
 	if (bDocked == false)
 	{
 		g_Logger.WriteLog(_T("No Dock..."));
-		return false;
+		//return false;
 	}
 
+	WorkerItemHandler wih;
+	wih.GetNetworkAdapterInformation();
 
+
+	return true;
 }

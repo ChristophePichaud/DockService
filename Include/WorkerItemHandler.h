@@ -1,7 +1,8 @@
 #pragma once
 #include "MySharedStuff.h"
+#include "DataHandler.h"
 
-class WorkerItemHandler
+class MYSHAREDSTUFF_API WorkerItemHandler
 {
 public:
 	WorkerItemHandler();

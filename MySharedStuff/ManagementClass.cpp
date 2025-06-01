@@ -60,7 +60,7 @@ bool ManagementClass::GetInstances()
 	// the current user and obtain pointer pSvc
 	// to make IWbemServices calls.
 	hres = m_pLoc->ConnectServer(
-		_bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
+		CComBSTR(L"ROOT\\CIMV2"), // Object path of WMI namespace
 		NULL,                    // User name. NULL = current user
 		NULL,                    // User password. NULL = current
 		0,                       // Locale. NULL indicates current
@@ -99,8 +99,8 @@ bool ManagementClass::GetInstances()
 	//IEnumWbemClassObject* pEnumerator = NULL;
 	//CComPtr<IEnumWbemClassObject> pEnumerator = NULL;
 	hres = m_pSvc->ExecQuery(
-		bstr_t("WQL"),
-		bstr_t((LPTSTR)(LPCTSTR)m_wmiAdr),
+		CComBSTR(L"WQL"),
+		CComBSTR((LPTSTR)(LPCTSTR)m_wmiAdr),
 		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
 		NULL,
 		&m_pEnumerator);
@@ -177,34 +177,32 @@ bool ManagementClass::MoveNext()
 
 CString ManagementClass::GetStringProperty(CString propName)
 {
-	ASSERT(m_pclsObj != NULL);
 	CComVariant vtProp;
 	HRESULT hr = m_pclsObj->Get(propName, 0, &vtProp, 0, 0);
 	CString data;
+
+	CComBSTR bstr = vtProp.bstrVal;
+
 	AfxBSTR2CString(&data, vtProp.bstrVal);
 	return data;
 }
 
-bool ManagementClass::GetSafeArrayProperty(CString propName, COleSafeArray & saReturned)
+bool ManagementClass::GetSafeArrayProperty(CString propName, CComVariant& saReturned)
 {
-	ASSERT(m_pclsObj != NULL);
-	//CComVariant vtProp;
-	COleVariant vtProp;
+	CComVariant vtProp;
+	//COleVariant vtProp;
 	HRESULT hr = m_pclsObj->Get(propName, 0, &vtProp, 0, 0);
 	if (vtProp.parray == NULL)
 	{
 		return false;
 	}
 
-	COleSafeArray sa;
-	sa = vtProp;
-	saReturned = sa;
+	saReturned = vtProp;
 	return true;
 }
 
 bool ManagementClass::GetBoolProperty(CString propName)
 {
-	ASSERT(m_pclsObj != NULL);
 	bool result = false;
 	CComVariant vtProp;
 	HRESULT hr = m_pclsObj->Get(propName, 0, &vtProp, 0, 0);
@@ -215,7 +213,6 @@ bool ManagementClass::GetBoolProperty(CString propName)
 
 int ManagementClass::GetIntProperty(CString propName)
 {
-	ASSERT(m_pclsObj != NULL);
 	CComVariant vtProp;
 	HRESULT hr = m_pclsObj->Get(propName, 0, &vtProp, 0, 0);
 	int i = vtProp.iVal;
@@ -224,10 +221,32 @@ int ManagementClass::GetIntProperty(CString propName)
 
 long ManagementClass::GetLongProperty(CString propName)
 {
-	ASSERT(m_pclsObj != NULL);
 	CComVariant vtProp;
 	HRESULT hr = m_pclsObj->Get(propName, 0, &vtProp, 0, 0);
 	long l = vtProp.lVal;
 	return l;
 }
 
+void AfxBSTR2CString(CString* pStr, _In_ BSTR bstr)
+{
+	if (pStr == NULL)
+	{
+		return;
+	}
+
+	int nLen = SysStringLen(bstr);
+#if defined(_UNICODE)
+	LPTSTR lpsz = pStr->GetBufferSetLength(nLen);
+	//ASSERT(lpsz != NULL);
+	Checked::memcpy_s(lpsz, nLen * sizeof(TCHAR), bstr, nLen * sizeof(TCHAR));
+	pStr->ReleaseBuffer(nLen);
+#else
+	int nBytes = WideCharToMultiByte(CP_ACP, 0, bstr, nLen, NULL, NULL, NULL,
+		NULL);
+	LPSTR lpsz = pStr->GetBufferSetLength(nBytes);
+	//ASSERT(lpsz != NULL);
+	WideCharToMultiByte(CP_ACP, 0, bstr, nLen, lpsz, nBytes, NULL, NULL);
+	pStr->ReleaseBuffer(nBytes);
+#endif
+
+}

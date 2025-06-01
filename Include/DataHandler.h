@@ -21,6 +21,8 @@ public:
 	~DataHandler();
 
 public:
-	CArray<CNetworkCard> m_NetworkCards;
+	std::vector<std::shared_ptr<CNetworkCard>> m_NetworkCards;
+	CString m_IPV4;
+	CString m_IPV6;
 };
 
