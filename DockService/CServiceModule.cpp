@@ -217,11 +217,12 @@ DWORD AutomateThread(LPVOID pParam)
 				break;
 			}
 			
+			MainRoutine();
+
 			//Sleep(200);
 			Sleep(5000);
 			g_Logger.WriteLog(_T("MainThread Sleep..."));
 
-			MainRoutine();
 
 		} // Main loop
 
@@ -268,7 +269,7 @@ bool MainRoutine()
 	if (bDocked == false)
 	{
 		g_Logger.WriteLog(_T("No Dock..."));
-		//return false;
+		//return false;	// Enlever le commentaire pour tester avec un dock....
 	}
 
 	WorkerItemHandler wih;
@@ -288,15 +289,34 @@ bool MainRoutine()
 		g_Logger.WriteLog((LPCTSTR)str);
 	}
 
+	ManagementClass mc(_TEXT("Win32_NetworkAdapter"));
+	bool result = mc.GetInstances();
+
 	for (std::shared_ptr<CNetworkCard> spNetCard : wih.m_data.m_NetworkCards)
 	{
 		if (spNetCard->m_NetConnectionStatus == 2) // CONNECTED
 		{
-			ManagementClass mc(_TEXT("Win32_NetworkAdapter"));
-			bool result = mc.GetInstances();
-			mc.CallMethodOnNetworkInterface(_T("Disable"), spNetCard->m_Index);
+			//mc.CallMethodOnNetworkInterface(_T("Disable"), spNetCard->m_Index);
 			//mc.CallMethodOnNetworkInterface(_T("Enable"), spNetCard->m_Index);
+
+			CString name = spNetCard->m_Name;
+			std::wstring wname = (LPCTSTR)name;
+			size_t f = wname.find(_T("Wi-Fi"));
+
+			if (f != std::wstring::npos)
+			{
+				// Disable
+				g_Logger.WriteLog(_T("Disable..."));
+				mc.CallMethodOnNetworkInterface(_T("Disable"), spNetCard->m_Index);
+
+				Sleep(1000);
+
+				// Enable
+				g_Logger.WriteLog(_T("Enable..."));
+				mc.CallMethodOnNetworkInterface(_T("Enable"), spNetCard->m_Index);
+			}
 		}
+
 	}
 	
 	return true;
